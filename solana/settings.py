@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-0wd44=@idu+nv$qmrsa0#y@@y(u=)azlo#=l^d7!mri7-0bzcx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "192.168.1.7"]
 
 # Application definition
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'main',
     'solanabase',
     'blockchain',
+    'livereload'
 ]
 
 MIDDLEWARE = [

@@ -1,46 +1,41 @@
-# biodata/forms.py
 from django import forms
 import re
 
 class StudentBiodataForm(forms.Form):
-    """Form for validating student biodata"""
-    student_id = forms.CharField(max_length=20)
-    first_name = forms.CharField(max_length=100)
-    last_name = forms.CharField(max_length=100)
-    email = forms.EmailField()
-    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    phone_number = forms.CharField(max_length=15, required=False)
-    address = forms.CharField(widget=forms.Textarea, required=False)
-    department = forms.CharField(max_length=100, required=False)
+    """Form for validating student biodata in Indonesian format"""
+    nis = forms.CharField(max_length=20, label="NIS")
+    nisn = forms.CharField(max_length=20, label="NISN")
+    nama = forms.CharField(max_length=255, label="Nama Lengkap")
+    kelahiran = forms.CharField(max_length=100, label="Tempat, Tanggal Lahir")
+    kelamin = forms.ChoiceField(
+        choices=[('LAKI-LAKI', 'Laki-laki'), ('PEREMPUAN', 'Perempuan')],
+        label="Jenis Kelamin"
+    )
+    alamat = forms.CharField(widget=forms.Textarea, label="Alamat Lengkap")
     
-    def clean_student_id(self):
-        """Validate the student ID format"""
-        student_id = self.cleaned_data.get('student_id')
-        # Assuming student ID is in format ABC123 (3 letters followed by 3 digits)
-        if not re.match(r'^[A-Z]{3}\d{3}$', student_id):
-            raise forms.ValidationError("Student ID must be in format ABC123 (3 uppercase letters followed by 3 digits)")
-        return student_id
+    def clean_nis(self):
+        """Validate the NIS format"""
+        nis = self.cleaned_data.get('nis')
+        # Example validation for NIS in format XX.XX.XX.XXX
+        if not re.match(r'^\d{2}\.\d{2}\.\d{2}\.\d{3}$', nis):
+            raise forms.ValidationError("NIS harus dalam format XX.XX.XX.XXX (contoh: 23.24.10.003)")
+        return nis
     
-    def clean_phone_number(self):
-        """Validate phone number format"""
-        phone = self.cleaned_data.get('phone_number')
-        if phone and not re.match(r'^\+?[\d\s-]{10,15}$', phone):
-            raise forms.ValidationError("Enter a valid phone number")
-        return phone
+    def clean_nisn(self):
+        """Validate the NISN format"""
+        nisn = self.cleaned_data.get('nisn')
+        # NISN should be numeric and 10 digits
+        if not nisn.isdigit() or len(nisn) != 9:
+            raise forms.ValidationError("NISN harus berupa 9 digit angka")
+        return nisn
     
-    def clean(self):
-        """Additional validation that requires multiple fields"""
-        cleaned_data = super().clean()
-        # Example: Ensure student is at least 16 years old
-        dob = cleaned_data.get('date_of_birth')
-        if dob:
-            from datetime import date
-            today = date.today()
-            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-            if age < 16:
-                self.add_error('date_of_birth', "Student must be at least 16 years old")
-        
-        return cleaned_data
+    def clean_kelahiran(self):
+        """Validate birth information format"""
+        kelahiran = self.cleaned_data.get('kelahiran')
+        # Just basic validation to ensure it contains a comma and a date
+        if ',' not in kelahiran or not any(char.isdigit() for char in kelahiran):
+            raise forms.ValidationError("Format kelahiran: KOTA, DD BULAN YYYY (contoh: BUTON, 20 NOVEMBER 2007)")
+        return kelahiran
     
     def get_data_dict(self):
         """Return a dictionary of the validated data"""

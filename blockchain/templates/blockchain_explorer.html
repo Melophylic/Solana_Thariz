@@ -1,0 +1,222 @@
+<!-- biodata/templates/biodata/blockchain_explorer.html -->
+{% extends 'biodata/base.html' %}
+
+{% block title %}Blockchain Explorer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Realistic Blockchain Explorer</h2>
+        <p>View the blockchain, transactions, and smart contracts</p>
+    </div>
+</div>
+
+<!-- Blockchain Status -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header {% if is_valid %}bg-success{% else %}bg-danger{% endif %} text-white">
+                <h5 class="card-title mb-0">Blockchain Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert {% if is_valid %}alert-success{% else %}alert-danger{% endif %}">
+                    <h5>
+                        {% if is_valid %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                        {% else %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% endif %}
+                        {{ validation_message }}
+                    </h5>
+                </div>
+                
+                <!-- Quick stats -->
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="display-4">{{ blocks.count }}</h4>
+                            <p class="mb-0">Total Blocks</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="display-4">{{ pending_transactions }}</h4>
+                            <p class="mb-0">Pending Transactions</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="display-4">{{ contracts.count }}</h4>
+                            <p class="mb-0">Smart Contracts</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <a href="{% url 'student_blockchain_view' %}" class="btn btn-primary btn-lg w-100 mb-2">
+                            <i class="bi bi-people-fill me-2"></i>
+                            View Students
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'add_student_blockchain' %}" class="btn btn-success btn-lg w-100 mb-2">
+                            <i class="bi bi-person-plus-fill me-2"></i>
+                            Add Student
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'mine_transactions' %}" class="btn btn-warning btn-lg w-100 mb-2">
+                            <i class="bi bi-cpu-fill me-2"></i>
+                            Mine Transactions
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Fix issue button -->
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <a href="{% url 'create_fix_transaction' %}" class="btn btn-info btn-lg w-100 mb-2">
+                            <i class="bi bi-tools me-2"></i>
+                            Create Fix Transaction
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'fix_block3_issue' %}" class="btn btn-danger btn-lg w-100 mb-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Fix Block #3 Issue
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Blocks -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Latest Blocks</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Block #</th>
+                                <th>Hash (first 10 chars)</th>
+                                <th>Transactions</th>
+                                <th>Mined By</th>
+                                <th>Timestamp</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for block in blocks %}
+                                <tr>
+                                    <td>{{ block.block_number }}</td>
+                                    <td><code>{{ block.block_hash|slice:":10" }}...</code></td>
+                                    <td>{{ block.transactions.count }}</td>
+                                    <td>
+                                        {% if block.miner %}
+                                            {{ block.miner.name }}
+                                        {% else %}
+                                            Unknown
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ block.timestamp|date:"d M Y H:i:s" }}</td>
+                                    <td>
+                                        <a href="{% url 'block_detail' block.block_number %}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye-fill"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No blocks found</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Smart Contracts -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Deployed Smart Contracts</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Version</th>
+                                <th>Address</th>
+                                <th>Created By</th>
+                                <th>Deployed On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in contracts %}
+                                <tr>
+                                    <td>{{ contract.name }}</td>
+                                    <td>{{ contract.version }}</td>
+                                    <td><code>{{ contract.contract_address|slice:":10" }}...</code></td>
+                                    <td>
+                                        {% if contract.creator %}
+                                            {{ contract.creator.username }}
+                                        {% else %}
+                                            Unknown
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ contract.created_at|date:"d M Y H:i:s" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No contracts deployed</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Wallet -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">Your Wallet</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-wallet2 fs-1"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Your Address</h5>
+                        <code>{{ user_address }}</code>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <p><strong>Note:</strong> This is a simulated wallet address for demonstration purposes. In a real blockchain, this would be a cryptographic account with private/public keys.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

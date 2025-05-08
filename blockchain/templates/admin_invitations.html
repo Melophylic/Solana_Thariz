@@ -1,0 +1,72 @@
+<!-- templates/admin_invitations.html -->
+{% extends 'base.html' %}
+
+{% block title %}Invitation Codes - Student Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Administrator Invitation Codes</h2>
+        <p>Manage invitation codes for new system administrators</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Invitation Codes</h5>
+                    <a href="{% url 'generate_invitation' %}" class="btn btn-light btn-sm">Generate New Code</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if invitations %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Created</th>
+                                    <th>Created By</th>
+                                    <th>Status</th>
+                                    <th>Used By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invite in invitations %}
+                                    <tr>
+                                        <td>
+                                            <span class="font-monospace">{{ invite.code }}</span>
+                                        </td>
+                                        <td>{{ invite.created_at|date:"M d, Y H:i" }}</td>
+                                        <td>{{ invite.created_by.username }}</td>
+                                        <td>
+                                            {% if invite.is_used %}
+                                                <span class="badge bg-secondary">Used</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Available</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if invite.used_by %}
+                                                {{ invite.used_by.username }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No invitation codes found. <a href="{% url 'generate_invitation' %}">Generate your first code</a>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

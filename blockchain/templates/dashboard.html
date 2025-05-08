@@ -1,0 +1,311 @@
+<!-- templates/dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Student Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Blockchain Dashboard</h2>
+        <p>Overview of your student data blockchain system</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Blockchain Stats -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Blockchain Statistics</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Blocks
+                        <span class="badge bg-primary rounded-pill">{{ stats.total_blocks }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Students
+                        <span class="badge bg-primary rounded-pill">{{ stats.total_students }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Latest Block
+                        <span class="badge bg-primary rounded-pill">{{ stats.latest_block_id|default:"None" }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Latest hash: {{ stats.latest_hash|default:"No blocks yet"|truncatechars:20 }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blockchain Status -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header {% if blockchain_valid %}bg-success{% else %}bg-danger{% endif %} text-white">
+                <h5 class="card-title mb-0">Blockchain Status</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    {% if blockchain_valid %}
+                        <i class="bi bi-check-circle-fill text-success"></i> Blockchain integrity check passed.
+                    {% else %}
+                        <i class="bi bi-x-circle-fill text-danger"></i> Blockchain integrity check failed.
+                    {% endif %}
+                </p>
+                <p>{{ validation_message }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'validate_blockchain' %}" class="btn btn-outline-primary btn-sm" id="refresh-validation">
+                    Refresh Validation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Quick Actions -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'add_student' %}" class="btn btn-primary w-100">
+                            Add New Student
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'student_list' %}" class="btn btn-info w-100">
+                            View All Students
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'generate_key' %}" class="btn btn-warning w-100">
+                            Manage Encryption Keys
+                        </a>
+                    </div>
+                    {% if user.is_superuser %}
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'repair_blockchain' %}" class="btn btn-danger w-100">
+                            Repair Blockchain
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'advanced_repair' %}" class="btn btn-danger w-100">
+                            Advanced Blockchain Repair
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Blockchain Visualizer</h5>
+                    <span>
+                        <i class="bi bi-info-circle me-1"></i>
+                        <small>Scroll to view all blocks</small>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Verification summary -->
+                <div class="alert {% if blockchain_valid %}alert-success{% else %}alert-danger{% endif %} d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        {% if blockchain_valid %}
+                            <i class="bi bi-shield-check fs-3"></i>
+                        {% else %}
+                            <i class="bi bi-shield-exclamation fs-3"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <strong>Blockchain Verification:</strong> 
+                        {% if blockchain_valid %}
+                            The blockchain is valid and secure. All blocks are properly linked and have associated data.
+                        {% else %}
+                            {{ validation_message }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Scrollable blockchain history -->
+                <div class="blockchain-visualizer-container" style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; background-color: #f8f9fa; padding: 1rem;">
+                    <div class="blockchain-chain">
+                        {% for block in blockchain_blocks %}
+                            <div class="block-container mb-4">
+                                <!-- Block header with block number and timestamp -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="block-title m-0">
+                                        <span class="badge bg-dark">Block #{{ block.id }}</span>
+                                        {% if forloop.first %}
+                                            <span class="badge bg-success ms-2">Latest</span>
+                                        {% endif %}
+                                    </h5>
+                                    <small class="text-muted">{{ block.timestamp|date:"d M Y H:i:s" }}</small>
+                                </div>
+                                
+                                <!-- Block content -->
+                                <div class="card shadow-sm">
+                                    <div class="card-header {% if forloop.counter == blockchain_blocks.count %}bg-success{% else %}bg-primary{% endif %} text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>{% if forloop.counter == blockchain_blocks.count %}Genesis Block{% else %}Block{% endif %}</span>
+                                            <span>
+                                                <i class="bi bi-currency-bitcoin me-1"></i>
+                                                <small>Nonce: {{ block.nonce }}</small>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-primary">
+                                                    <i class="bi bi-hash me-1"></i>
+                                                    Block Hash
+                                                </h6>
+                                                <p class="hash-text mb-3">{{ block.hash }}</p>
+                                                
+                                                <h6 class="text-secondary">
+                                                    <i class="bi bi-arrow-left me-1"></i>
+                                                    Previous Hash
+                                                </h6>
+                                                <p class="hash-text mb-3">{{ block.previous_hash }}</p>
+                                                
+                                                <!-- Verify hash calculation (simplified) -->
+                                                <div class="hash-verification mt-3">
+                                                    {% if block.hash|slice:":2" == "00" %}
+                                                        <span class="badge bg-success">
+                                                            <i class="bi bi-check-circle me-1"></i>
+                                                            Valid proof of work
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">
+                                                            <i class="bi bi-x-circle me-1"></i>
+                                                            Invalid proof of work
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <!-- Data verification -->
+                                                {% if block.student %}
+                                                    <div class="data-verification mb-3">
+                                                        <div class="alert alert-success">
+                                                            <i class="bi bi-check-circle-fill me-2"></i>
+                                                            <strong>Data Integrity:</strong> Associated student data found
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <h6 class="text-success">
+                                                        <i class="bi bi-person-badge me-1"></i>
+                                                        Student NIS
+                                                    </h6>
+                                                    <p class="mb-3">{{ block.student.student_id }}</p>
+                                                    
+                                                    <h6 class="text-success">
+                                                        <i class="bi bi-file-earmark-text me-1"></i>
+                                                        Data Preview
+                                                    </h6>
+                                                    {% if block.student.decrypted_data %}
+                                                        <p><strong>{{ block.student.decrypted_data }}</strong></p>
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-unlock me-1"></i>
+                                                            Data decrypted with your key
+                                                        </small>
+                                                    {% else %}
+                                                        <div class="alert alert-info py-2">
+                                                            <i class="bi bi-lock-fill me-1"></i>
+                                                            <small>Encrypted data - only viewable with proper key</small>
+                                                        </div>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <div class="data-verification">
+                                                        <div class="alert alert-danger">
+                                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                            <strong>Data Integrity:</strong> No associated student data
+                                                        </div>
+                                                        <p class="text-danger">
+                                                            This block has no associated student record, which breaks the blockchain integrity.
+                                                            Use the repair tool to fix this issue.
+                                                        </p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Chain connection indicator -->
+                                {% if not forloop.last %}
+                                    <div class="chain-connection text-center my-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-link text-primary" viewBox="0 0 16 16">
+                                            <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
+                                            <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="alert alert-info">
+                                <p>No blocks found in the blockchain. Add a student to create the first block.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hash-text {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        word-break: break-all;
+        font-size: 0.85rem;
+        background-color: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        border: 1px solid #e9ecef;
+        color: #495057;
+    }
+    
+    .blockchain-chain {
+        position: relative;
+        padding: 1rem;
+    }
+    
+    .block-container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .chain-connection {
+        position: relative;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .chain-connection:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        border-left: 2px dashed #adb5bd;
+        transform: translateX(-50%);
+        z-index: 1;
+    }
+</style>
+{% endblock %}

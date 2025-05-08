@@ -23,8 +23,20 @@ class BlockchainService:
             if i == 0:
                 if block.previous_hash != "0" * 64:
                     return False, f"Invalid genesis block: {block.id}"
-                continue
                 
+                # Even the genesis block should have student data
+                try:
+                    StudentBiodata.objects.get(block=block)
+                except StudentBiodata.DoesNotExist:
+                    # Report the issue but don't fail validation
+                    # This allows the system to continue functioning while repairs are made
+                    return (
+                        False,
+                        f"Block {block.id} has no associated student data. Run the repair_blockchain command to fix this."
+                    )
+                    
+                continue
+                    
             # Check hash points to previous block
             prev_block = blocks[i-1]
             if block.previous_hash != prev_block.hash:
@@ -34,7 +46,7 @@ class BlockchainService:
             try:
                 student = StudentBiodata.objects.get(block=block)
                 calculated_hash = StudentBiodata.calculate_hash(
-                    block.id, 
+                    block.id,
                     block.previous_hash,
                     block.timestamp.timestamp(),  # Convert Django datetime to timestamp
                     student.encrypted_data,
@@ -45,7 +57,11 @@ class BlockchainService:
                     return False, f"Block {block.id} has invalid hash"
                     
             except StudentBiodata.DoesNotExist:
-                return False, f"Block {block.id} has no associated student data"
+                # Report the issue but don't fail validation
+                return (
+                    False,
+                    f"Block {block.id} has no associated student data. Run the repair_blockchain command to fix this."
+                )
         
         return True, "Blockchain is valid"
     

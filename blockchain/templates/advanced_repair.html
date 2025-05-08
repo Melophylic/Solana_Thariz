@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Advanced Blockchain Repair - Student Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Advanced Blockchain Repair</h2>
+        <p>Fix missing blocks and restore blockchain integrity</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Advanced Repair Tools</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h5><i class="bi bi-exclamation-triangle-fill me-2"></i> Advanced Operation</h5>
+                    <p>This tool can fix complex blockchain integrity issues including:</p>
+                    <ul>
+                        <li>Missing blocks (gaps in the block sequence)</li>
+                        <li>Broken hash chains between blocks</li>
+                    </ul>
+                    <p><strong>Note:</strong> This is an advanced repair operation. It's recommended to back up your database before proceeding.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Current Status:</h5>
+                    <div class="alert {% if is_valid %}alert-success{% else %}alert-danger{% endif %}">
+                        <p>{{ validation_message }}</p>
+                    </div>
+                </div>
+                
+                {% if missing_ids %}
+                    <div class="mb-4">
+                        <h5>Missing Blocks Detected:</h5>
+                        <div class="alert alert-danger">
+                            <p>The following block IDs are missing from the blockchain:</p>
+                            <ul>
+                                {% for id in missing_ids %}
+                                    <li>Block #{{ id }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p>This creates gaps in the blockchain and breaks the integrity of the chain.</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" onsubmit="return confirm('WARNING: This will create placeholder blocks for all missing block IDs and repair the hash chain. This action cannot be undone. Proceed?');">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">Repair Missing Blocks</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>No missing blocks detected in the sequence. The blockchain structure appears intact.</p>
+                        <p>If you're still experiencing issues, they may be related to data integrity rather than missing blocks.</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'repair_blockchain' %}" class="btn btn-primary">Try Standard Repair</a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Return to Dashboard</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

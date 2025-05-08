@@ -1,0 +1,99 @@
+
+<!-- templates/generate_key.html -->
+{% extends 'base.html' %}
+
+{% block title %}Encryption Key Management - Student Blockchain{% endblock %}
+
+{% block extra_head %}
+<style>
+    .key-warning {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .instruction-block {
+        background-color: #e2e3e5;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Encryption Key Management</h2>
+        <p>Manage the encryption keys used to secure student data</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Generate New Encryption Key</h5>
+            </div>
+            <div class="card-body">
+                <div class="key-warning">
+                    <h5><i class="bi bi-exclamation-triangle-fill"></i> Warning: Critical Operation</h5>
+                    <p>Generating a new encryption key will:</p>
+                    <ul>
+                        <li>Render all previously encrypted data <strong>unreadable</strong></li>
+                        <li>Require re-entering all student information</li>
+                        <li>Create a completely new blockchain</li>
+                    </ul>
+                    <p>This operation <strong>cannot be undone</strong>. Use only in case of security breach or as part of a planned key rotation policy.</p>
+                </div>
+                
+                <div class="instruction-block">
+                    <h5>Key Management Best Practices</h5>
+                    <ol>
+                        <li>Generate new keys periodically according to your security policy</li>
+                        <li>Before generating a new key, ensure you have a backup of all student data</li>
+                        <li>Document when keys are generated and rotated</li>
+                        <li>Consider generating new keys when administrative access changes</li>
+                    </ol>
+                </div>
+                
+                <form method="post" onsubmit="return confirm('Are you absolutely sure you want to generate a new encryption key? This will make all existing student data unreadable and CANNOT be undone!');">
+                    {% csrf_token %}
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="confirm-checkbox" required>
+                        <label class="form-check-label" for="confirm-checkbox">
+                            I understand that generating a new key will make all existing data unreadable
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger">Generate New Encryption Key</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Current key creation date: {% if user.encryptionkey %}{{ user.encryptionkey.created_at|date:"F d, Y H:i:s" }}{% else %}No key generated yet{% endif %}</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Additional validation for key generation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const checkbox = document.getElementById('confirm-checkbox');
+        
+        form.addEventListener('submit', function(event) {
+            if (!checkbox.checked) {
+                event.preventDefault();
+                alert('You must confirm that you understand the implications of generating a new key.');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,152 @@
+<!-- biodata/templates/biodata/fix_block3_issue.html -->
+{% extends 'biodata/base.html' %}
+
+{% block title %}Fix Block #3 Issue{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Fix Block #3 Issue</h2>
+        <p>Demonstration of how to fix the Block #3 issue in a realistic blockchain</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Issue Explanation</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h5><i class="bi bi-exclamation-triangle-fill me-2"></i> The Problem</h5>
+                    <p>In our blockchain, Block #3 is pointing to Block #1 instead of Block #2, breaking the chain integrity. This would never happen in a well-implemented blockchain, but let's see how to handle it realistically.</p>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5>Blockchain Structure:</h5>
+                        <div class="blockchain-diagram p-3 border rounded">
+                            <!-- Simple diagram showing the blocks -->
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="block-box p-2 border border-success bg-light rounded">
+                                    <div class="text-center fw-bold">Block #1</div>
+                                    <div><small>Genesis Block</small></div>
+                                </div>
+                                <div class="arrow mx-2">→</div>
+                                <div class="block-box p-2 border border-primary bg-light rounded">
+                                    <div class="text-center fw-bold">Block #2</div>
+                                    <div><small>Has valid data</small></div>
+                                </div>
+                                <div class="arrow mx-2">→</div>
+                                <div class="block-box p-2 border border-danger bg-light rounded">
+                                    <div class="text-center fw-bold">Block #3</div>
+                                    <div><small>Points to Block #1 instead of #2!</small></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Show the incorrect reference -->
+                            <div class="incorrect-reference mt-3">
+                                <div class="d-flex justify-content-center">
+                                    <svg height="40" width="200">
+                                        <path d="M 60 0 C 60 40, 140 40, 140 0" stroke="red" stroke-width="2" fill="transparent" stroke-dasharray="5,5" />
+                                        <text x="100" y="30" text-anchor="middle" fill="red">Incorrect Reference</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5>In a Real Blockchain:</h5>
+                        <ul>
+                            <li><strong>Immutability:</strong> We can't modify the blockchain history to fix the reference</li>
+                            <li><strong>Real Solution:</strong> Create new transactions to invalidate incorrect data and add corrected data</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>The Real-world Solution:</h5>
+                        <ol>
+                            <li>Identify data in the invalid block (Block #3)</li>
+                            <li>Create a transaction to mark that data as invalid (but keep it in the blockchain)</li>
+                            <li>Create a new transaction with corrected data</li>
+                            <li>Mine both transactions in new blocks</li>
+                        </ol>
+                        <p>This preserves blockchain immutability while ensuring correct data is available.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if has_issue %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Fix the Issue</h5>
+                </div>
+                <div class="card-body">
+                    <h5>Issue Details:</h5>
+                    <ul>
+                        <li><strong>Block #3 Previous Hash:</strong> <code>{{ block3.previous_hash|slice:":10" }}...</code> (points to Block #1)</li>
+                        <li><strong>Block #2 Hash:</strong> <code>{{ block2.block_hash|slice:":10" }}...</code> (should be referenced by Block #3)</li>
+                    </ul>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="alert alert-warning">
+                            <p><strong>Warning:</strong> This will create real transactions to fix the issue by:</p>
+                            <ol>
+                                <li>Invalidating the record in Block #3</li>
+                                <li>Creating a new record with corrected data</li>
+                            </ol>
+                            <p>Block #3 will remain in the chain but its data will be marked as invalid.</p>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-tools me-2"></i>
+                                Fix Using Real Blockchain Principles
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'blockchain_explorer' %}" class="btn btn-secondary">Back to Explorer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">No Issue Detected</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <p>Either Block #3 is correctly pointing to Block #2, or these blocks don't exist in your blockchain.</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'blockchain_explorer' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to Blockchain Explorer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

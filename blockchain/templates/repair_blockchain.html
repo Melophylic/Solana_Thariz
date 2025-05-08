@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Repair Blockchain - Student Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Repair Blockchain</h2>
+        <p>Fix integrity issues in the blockchain</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header {% if is_valid %}bg-success{% else %}bg-danger{% endif %} text-white">
+                <h5 class="card-title mb-0">Blockchain Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert {% if is_valid %}alert-success{% else %}alert-danger{% endif %}">
+                    <p>{{ validation_message }}</p>
+                </div>
+                
+                {% if not is_valid %}
+                    <div class="alert alert-warning">
+                        <h5>What happens during repair?</h5>
+                        <p>The repair process will attempt to fix blockchain integrity issues by:</p>
+                        <ul>
+                            <li>Identifying blocks without associated student data</li>
+                            <li>Either creating placeholder student records or removing orphaned blocks</li>
+                            <li>Recalculating hashes if necessary</li>
+                        </ul>
+                        <p><strong>Note:</strong> This process will make permanent changes to the blockchain. It's recommended to back up your database before proceeding.</p>
+                    </div>
+                    
+                    <form method="post" onsubmit="return confirm('Are you sure you want to repair the blockchain? This action cannot be undone.');">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">Repair Blockchain</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <p>No repairs needed. The blockchain is valid.</p>
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary">Return to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+
+<!-- templates/update_student.html -->
+{% extends 'base.html' %}
+
+{% block title %}Update Student - {{ student_id }} - Student Blockchain{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Update Student: {{ student_id }}</h2>
+        <p>Modify student information and create a new block in the blockchain</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">Update Student Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning mb-4">
+                    <i class="bi bi-exclamation-triangle-fill"></i> 
+                    Updating student data will create a new block in the blockchain. The previous data will remain in the chain but will be marked as outdated.
+                </div>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="id_student_id">Student ID*</label>
+                        <input type="text" name="student_id" id="id_student_id" class="form-control {% if form.student_id.errors %}is-invalid{% endif %}" value="{{ form.student_id.value|default:'' }}" readonly>
+                        <small class="form-text">Student ID cannot be changed</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_first_name">First Name*</label>
+                        <input type="text" name="first_name" id="id_first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" required>
+                        {% if form.first_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_last_name">Last Name*</label>
+                        <input type="text" name="last_name" id="id_last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" required>
+                        {% if form.last_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_email">Email*</label>
+                        <input type="email" name="email" id="id_email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_date_of_birth">Date of Birth*</label>
+                        <input type="date" name="date_of_birth" id="id_date_of_birth" class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}" required>
+                        {% if form.date_of_birth.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.date_of_birth.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_phone_number">Phone Number</label>
+                        <input type="tel" name="phone_number" id="id_phone_number" class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" value="{{ form.phone_number.value|default:'' }}">
+                        {% if form.phone_number.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.phone_number.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <small class="form-text">Format: +1234567890 or 123-456-7890</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_department">Department</label>
+                        <input type="text" name="department" id="id_department" class="form-control {% if form.department.errors %}is-invalid{% endif %}" value="{{ form.department.value|default:'' }}">
+                        {% if form.department.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.department.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_address">Address</label>
+                        <textarea name="address" id="id_address" class="form-control {% if form.address.errors %}is-invalid{% endif %}" rows="3">{{ form.address.value|default:'' }}</textarea>
+                        {% if form.address.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.address.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-warning">Update in Blockchain</button>
+                        <a href="{% url 'view_student' student_id %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Fields marked with * are required</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

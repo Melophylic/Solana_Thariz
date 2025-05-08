@@ -158,3 +158,15 @@ class StudentBiodata(models.Model):
         self.save()
         
         return self
+    
+class InvitationCode(models.Model):
+    """Model for storing administrator invitation codes"""
+    code = models.CharField(max_length=20, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_invitations')
+    is_used = models.BooleanField(default=False)
+    used_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='used_invitation')
+    
+    def __str__(self):
+        status = "Used" if self.is_used else "Available"
+        return f"Invitation {self.code} ({status})"

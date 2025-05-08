@@ -1,0 +1,139 @@
+<!-- templates/add_student.html -->
+{% extends 'base.html' %}
+
+{% block title %}Add Student - Student Blockchain{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Add New Student</h2>
+        <p>Enter student information to securely store in the blockchain</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Student Biodata Form</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle-fill"></i>
+                    All data will be encrypted and stored securely in the blockchain. Only administrators with the proper encryption key will be able to view this data.
+                </div>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="id_nis">NIS*</label>
+                        <input type="text" name="nis" id="id_nis" class="form-control {% if form.nis.errors %}is-invalid{% endif %}" value="{{ form.nis.value|default:'' }}" required>
+                        {% if form.nis.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.nis.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <small class="form-text">Format: XX.XX.XX.XXX (contoh: 23.24.10.003)</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_nisn">NISN*</label>
+                        <input type="text" name="nisn" id="id_nisn" class="form-control {% if form.nisn.errors %}is-invalid{% endif %}" value="{{ form.nisn.value|default:'' }}" required>
+                        {% if form.nisn.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.nisn.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <small class="form-text">9 digit angka (contoh: 008998891)</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_nama">Nama Lengkap*</label>
+                        <input type="text" name="nama" id="id_nama" class="form-control {% if form.nama.errors %}is-invalid{% endif %}" value="{{ form.nama.value|default:'' }}" required>
+                        {% if form.nama.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.nama.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_kelahiran">Tempat, Tanggal Lahir*</label>
+                        <input type="text" name="kelahiran" id="id_kelahiran" class="form-control {% if form.kelahiran.errors %}is-invalid{% endif %}" value="{{ form.kelahiran.value|default:'' }}" required>
+                        {% if form.kelahiran.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.kelahiran.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <small class="form-text">Format: KOTA, DD BULAN YYYY (contoh: BUTON, 20 NOVEMBER 2007)</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_kelamin">Jenis Kelamin*</label>
+                        <select name="kelamin" id="id_kelamin" class="form-control {% if form.kelamin.errors %}is-invalid{% endif %}" required>
+                            <option value="LAKI-LAKI" {% if form.kelamin.value == 'LAKI-LAKI' %}selected{% endif %}>Laki-laki</option>
+                            <option value="PEREMPUAN" {% if form.kelamin.value == 'PEREMPUAN' %}selected{% endif %}>Perempuan</option>
+                        </select>
+                        {% if form.kelamin.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.kelamin.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_alamat">Alamat Lengkap*</label>
+                        <textarea name="alamat" id="id_alamat" class="form-control {% if form.alamat.errors %}is-invalid{% endif %}" rows="3" required>{{ form.alamat.value|default:'' }}</textarea>
+                        {% if form.alamat.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.alamat.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text">Alamat lengkap termasuk jalan, RT/RW, kelurahan, kecamatan, kota, provinsi, dan kode pos</small>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Store in Blockchain</button>
+                        <a href="{% url 'student_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Fields marked with * are required</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

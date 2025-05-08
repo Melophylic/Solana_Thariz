@@ -1,0 +1,44 @@
+<!-- templates/generate_invitation.html -->
+{% extends 'base.html' %}
+
+{% block title %}Generate Invitation Code - Student Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Generate Administrator Invitation</h2>
+        <p>Create invitation codes for new administrators</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Create Invitation Code</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p><strong>Important:</strong> Invitation codes allow new administrators to register for the system. 
+                    Each code can be used only once and should be shared securely with trusted individuals.</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <p class="mb-3">
+                        Clicking the button below will generate a random 10-character invitation code that can be shared with a new administrator.
+                    </p>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Generate New Invitation Code</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'admin_invitations' %}" class="btn btn-secondary">View All Invitation Codes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
