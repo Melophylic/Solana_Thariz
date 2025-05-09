@@ -1,0 +1,191 @@
+<!-- templates/add_student_blockchain.html -->
+{% extends 'base.html' %}
+
+{% block title %}Add Student to Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_blockchain_view' %}">Student Records</a></li>
+                <li class="breadcrumb-item active">Add Student</li>
+            </ol>
+        </nav>
+        <h2>Add Student to Blockchain</h2>
+        <p>Create a new student record using the blockchain smart contract</p>
+    </div>
+</div>
+
+<!-- Contract info -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-file-earmark-code fs-2 text-primary"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Using Smart Contract: {{ contract.name }}</h5>
+                        <p class="mb-0 text-muted">
+                            Contract Address: <code>{{ contract.contract_address|slice:":10" }}...</code> | 
+                            Version: {{ contract.version }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add student form -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Student Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-info-circle-fill fs-4"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0">
+                                This data will be encrypted and stored on the blockchain through a transaction. 
+                                After submission, the transaction must be mined into a block before the record is confirmed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <label for="nis" class="col-md-3 col-form-label">NIS (Student ID)*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="nis" name="nis" required 
+                                   placeholder="Format: XX.XX.XX.XXX">
+                            <div class="form-text">Format: XX.XX.XX.XXX (e.g., 23.24.10.003)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="nisn" class="col-md-3 col-form-label">NISN*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="nisn" name="nisn" required
+                                   placeholder="9-digit number">
+                            <div class="form-text">9-digit national student ID number</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="nama" class="col-md-3 col-form-label">Nama Lengkap*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="nama" name="nama" required
+                                   placeholder="Full name">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="kelahiran" class="col-md-3 col-form-label">Tempat, Tanggal Lahir*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="kelahiran" name="kelahiran" required
+                                   placeholder="e.g., JAKARTA, 01 JANUARY 2000">
+                            <div class="form-text">Format: KOTA, DD BULAN YYYY</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="kelamin" class="col-md-3 col-form-label">Jenis Kelamin*</label>
+                        <div class="col-md-9">
+                            <select class="form-select" id="kelamin" name="kelamin" required>
+                                <option value="LAKI-LAKI">LAKI-LAKI</option>
+                                <option value="PEREMPUAN">PEREMPUAN</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="alamat" class="col-md-3 col-form-label">Alamat Lengkap*</label>
+                        <div class="col-md-9">
+                            <textarea class="form-control" id="alamat" name="alamat" rows="3" required
+                                      placeholder="Complete address"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-9 offset-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="bi bi-wallet2 text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0">Transaction will be submitted from: <code>{{ user_address|slice:":10" }}...</code></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cloud-upload-fill me-2"></i>
+                                Submit to Blockchain
+                            </button>
+                            <a href="{% url 'student_blockchain_view' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blockchain explanation -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">How Smart Contract Transactions Work</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ol>
+                            <li>
+                                <strong>Form Submission</strong>
+                                <p>When you submit this form, the following steps happen:</p>
+                            </li>
+                            <li>
+                                <strong>Data Encryption</strong>
+                                <p>Your student data is encrypted using a secure encryption key</p>
+                            </li>
+                            <li>
+                                <strong>Transaction Creation</strong>
+                                <p>A transaction is created that calls the smart contract's <code>add_student</code> function</p>
+                            </li>
+                            <li>
+                                <strong>Transaction Processing</strong>
+                                <p>The transaction is processed by the smart contract, which checks for validity</p>
+                            </li>
+                            <li>
+                                <strong>Mining</strong>
+                                <p>The transaction must be mined into a block by a validator node</p>
+                            </li>
+                            <li>
+                                <strong>Confirmation</strong>
+                                <p>Once mined, the student record is confirmed and permanently stored on the blockchain</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

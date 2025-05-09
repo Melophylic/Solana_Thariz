@@ -1,0 +1,173 @@
+<!-- templates/transaction_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Transaction Details - Blockchain Explorer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item active">Transaction</li>
+            </ol>
+        </nav>
+        <h2>Transaction Details</h2>
+        <p>Detailed information about this blockchain transaction</p>
+    </div>
+</div>
+
+<!-- Transaction information -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Transaction Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="20%">Transaction Hash</th>
+                                <td><code class="text-break">{{ transaction.transaction_hash }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    {% if transaction.status == 'confirmed' %}
+                                        <span class="badge bg-success">Confirmed</span>
+                                    {% elif transaction.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>From Address</th>
+                                <td><code class="text-break">{{ transaction.from_address }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>To Address</th>
+                                <td>
+                                    <code class="text-break">{{ transaction.to_address }}</code>
+                                    {% for contract in contracts %}
+                                        {% if contract.contract_address == transaction.to_address %}
+                                            <br>
+                                            <span class="badge bg-info">Smart Contract: {{ contract.name }} v{{ contract.version }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Timestamp</th>
+                                <td>{{ transaction.timestamp|date:"F d, Y H:i:s" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Gas Used</th>
+                                <td>{{ transaction.gas_used }}</td>
+                            </tr>
+                            <tr>
+                                <th>Signature</th>
+                                <td><code class="text-break">{{ transaction.signature }}</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction data -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Transaction Data</h5>
+            </div>
+            <div class="card-body">
+                {% if tx_data %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Smart Contract Function Call</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p><strong>Function:</strong> {{ tx_data.function }}</p>
+                                    
+                                    {% if tx_data.params %}
+                                        <p><strong>Parameters:</strong></p>
+                                        <div class="bg-light p-3 rounded mb-3">
+                                            <pre class="mb-0"><code>{{ tx_data.params|pprint }}</code></pre>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6>Raw Transaction Data</h6>
+                            <div class="bg-light p-3 rounded mb-3">
+                                <pre class="mb-0"><code>{{ transaction.data }}</code></pre>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <p>This transaction doesn't appear to be a formatted smart contract call or couldn't be parsed.</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Block information -->
+{% if transaction.status == 'confirmed' %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Included in Block</h5>
+                </div>
+                <div class="card-body">
+                    {% for block in blocks %}
+                        {% for tx in block.transactions.all %}
+                            {% if tx.transaction_hash == transaction.transaction_hash %}
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="bi bi-box fs-1 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-2">Block #{{ block.block_number }}</h5>
+                                        <p class="mb-0">
+                                            <strong>Block Hash:</strong> <code>{{ block.block_hash|slice:":10" }}...</code>
+                                        </p>
+                                        <p class="mb-0">
+                                            <strong>Mined at:</strong> {{ block.timestamp|date:"F d, Y H:i:s" }}
+                                        </p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <a href="{% url 'block_detail' block.block_number %}" class="btn btn-primary">
+                                            <i class="bi bi-eye-fill me-1"></i> View Block
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% empty %}
+                        <div class="alert alert-warning">
+                            <p>Block information not available</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

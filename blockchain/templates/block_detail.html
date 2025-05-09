@@ -1,0 +1,167 @@
+<!-- templates/block_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Block #{{ block.block_number }} - Blockchain Explorer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item active">Block #{{ block.block_number }}</li>
+            </ol>
+        </nav>
+        <h2>Block #{{ block.block_number }} Details</h2>
+        <p>Detailed information about this block and its transactions</p>
+    </div>
+</div>
+
+<!-- Block information -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Block Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Block Number</th>
+                                <td>{{ block.block_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Hash</th>
+                                <td><code class="text-break">{{ block.block_hash }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Previous Hash</th>
+                                <td>
+                                    <code class="text-break">{{ block.previous_hash }}</code>
+                                    {% if block.block_number > 0 %}
+                                        <a href="{% url 'block_detail' block.block_number|add:"-1" %}" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-arrow-left"></i> View Previous Block
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Timestamp</th>
+                                <td>{{ block.timestamp|date:"F d, Y H:i:s" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Miner</th>
+                                <td>
+                                    {% if block.miner %}
+                                        {{ block.miner.name }} <small class="text-muted">({{ block.miner.address|slice:":10" }}...)</small>
+                                    {% else %}
+                                        Unknown
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Merkle Root</th>
+                                <td><code class="text-break">{{ block.merkle_root }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Difficulty</th>
+                                <td>{{ block.difficulty }} ({{ block.difficulty }} leading zeros required)</td>
+                            </tr>
+                            <tr>
+                                <th>Nonce</th>
+                                <td>{{ block.nonce }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            {% if block.block_number > 0 %}
+                                <a href="{% url 'block_detail' block.block_number|add:"-1" %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-arrow-left"></i> Previous Block
+                                </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'block_detail' block.block_number|add:"1" %}" class="btn btn-outline-primary">
+                                Next Block <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions in this block -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Transactions in this Block ({{ transactions.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Hash</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Status</th>
+                                    <th>Gas Used</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tx in transactions %}
+                                    <tr>
+                                        <td><code>{{ tx.transaction_hash|slice:":10" }}...</code></td>
+                                        <td><code>{{ tx.from_address|slice:":10" }}...</code></td>
+                                        <td>
+                                            <code>{{ tx.to_address|slice:":10" }}...</code>
+                                            {% for contract in contracts %}
+                                                {% if contract.contract_address == tx.to_address %}
+                                                    <span class="badge bg-info">Contract: {{ contract.name }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% if tx.status == 'confirmed' %}
+                                                <span class="badge bg-success">Confirmed</span>
+                                            {% elif tx.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Rejected</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ tx.gas_used }}</td>
+                                        <td>
+                                            <a href="{% url 'transaction_detail' tx.transaction_hash %}" class="btn btn-sm btn-info">
+                                                <i class="bi bi-eye-fill"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>This block contains no transactions.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

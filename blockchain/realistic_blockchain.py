@@ -264,26 +264,33 @@ class StudentRecord(models.Model):
 class BlockchainService:
     """Service for interacting with the blockchain"""
     
+    # Fix for the timestamp error in create_genesis_block method
+    # This occurs because auto_now_add fields aren't available until after save()
+
     @staticmethod
     def create_genesis_block():
         """Create genesis block if not exists"""
         if RealisticBlock.objects.exists():
             return RealisticBlock.objects.order_by('block_number').first()
         
-        # Create genesis block
+        # Generate current timestamp manually instead of relying on auto_now_add
+        current_time = datetime.now()
+        
+        # Create genesis block with explicit timestamp
         genesis_block = RealisticBlock(
             block_number=0,
             previous_hash="0" * 64,
             merkle_root=hashlib.sha256("genesis".encode()).hexdigest(),
             difficulty=2,
-            nonce=0
+            nonce=0,
+            timestamp=current_time  # Set timestamp explicitly
         )
         
         # Calculate block hash
         block_data = (
             str(genesis_block.block_number) +
             str(genesis_block.previous_hash) +
-            str(genesis_block.timestamp.timestamp()) +
+            str(current_time.timestamp()) +  # Use the same timestamp value
             str(genesis_block.merkle_root) +
             str(genesis_block.nonce)
         )

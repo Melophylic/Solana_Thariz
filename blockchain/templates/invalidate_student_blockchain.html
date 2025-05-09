@@ -1,0 +1,167 @@
+<!-- templates/invalidate_student_blockchain.html -->
+{% extends 'base.html' %}
+
+{% block title %}Invalidate Student Record - Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_blockchain_view' %}">Student Records</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_record_detail' student_id %}">{{ student_id }}</a></li>
+                <li class="breadcrumb-item active">Invalidate</li>
+            </ol>
+        </nav>
+        <h2>Invalidate Student Record: {{ student_id }}</h2>
+        <p>Mark a student record as invalid on the blockchain</p>
+    </div>
+</div>
+
+<!-- Warning -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Warning: Important Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <p>Invalidating a record is different from deletion:</p>
+                    <ul>
+                        <li><strong>The record will NOT be deleted</strong> from the blockchain</li>
+                        <li>It will be <strong>marked as invalid</strong> and will no longer be considered active</li>
+                        <li>The record will <strong>remain on the blockchain permanently</strong> as part of the history</li>
+                        <li>This operation <strong>cannot be undone</strong></li>
+                    </ul>
+                    <p>You should only invalidate records that contain serious errors or should no longer be used for any reason.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contract info -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-file-earmark-code fs-2 text-primary"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Using Smart Contract: {{ contract.name }}</h5>
+                        <p class="mb-0 text-muted">
+                            Contract Address: <code>{{ contract.contract_address|slice:":10" }}...</code> | 
+                            Version: {{ contract.version }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invalidate form -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Invalidation Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" onsubmit="return confirm('Are you sure you want to invalidate this student record? This action cannot be undone.');">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <label for="student_id" class="col-md-3 col-form-label">Student ID</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control-plaintext" id="student_id" value="{{ student_id }}" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="reason" class="col-md-3 col-form-label">Reason for Invalidation*</label>
+                        <div class="col-md-9">
+                            <textarea class="form-control" id="reason" name="reason" rows="3" required
+                                      placeholder="Explain why this record is being invalidated"></textarea>
+                            <div class="form-text">This reason will be stored on the blockchain as part of the invalidation record</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-9 offset-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="bi bi-wallet2 text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0">Transaction will be submitted from: <code>{{ user_address|slice:":10" }}...</code></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle-fill me-2"></i>
+                                Invalidate Record
+                            </button>
+                            <a href="{% url 'student_record_detail' student_id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blockchain explanation -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">How Invalidation Works on the Blockchain</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>Invalidation Process</h5>
+                        <ol>
+                            <li>
+                                <strong>Transaction Creation</strong>
+                                <p>A transaction calling the <code>invalidate_record</code> smart contract function is created</p>
+                            </li>
+                            <li>
+                                <strong>Contract Execution</strong>
+                                <p>The smart contract finds the active record for the student and changes its status to "invalid"</p>
+                            </li>
+                            <li>
+                                <strong>Reason Recording</strong>
+                                <p>The provided reason is stored with the record to document why it was invalidated</p>
+                            </li>
+                            <li>
+                                <strong>Mining</strong>
+                                <p>The transaction is mined into a block, making the change permanent</p>
+                            </li>
+                        </ol>
+                        
+                        <h5 class="mt-4">Important Considerations</h5>
+                        <ul>
+                            <li>In blockchain systems, <strong>nothing is ever truly deleted</strong></li>
+                            <li>If the record needs to be replaced, you should create a new record after invalidation</li>
+                            <li>The invalidation transaction creates a permanent record of who invalidated the data and why</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

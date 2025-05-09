@@ -1,0 +1,211 @@
+<!-- templates/create_fix_transaction.html -->
+{% extends 'base.html' %}
+
+{% block title %}Create Fix Transaction - Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item active">Create Fix Transaction</li>
+            </ol>
+        </nav>
+        <h2>Create Fix Transaction</h2>
+        <p>Fix issues in the blockchain by creating appropriate transactions</p>
+    </div>
+</div>
+
+<!-- Introduction -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Fixing Issues in a Blockchain</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle-fill me-2"></i> Important Concept</h5>
+                    <p>In a real blockchain, you <strong>cannot modify or delete existing data</strong>. Instead, issues are fixed by:</p>
+                    <ol>
+                        <li>Creating a transaction to mark incorrect data as invalid</li>
+                        <li>Creating a new transaction with the corrected data</li>
+                    </ol>
+                    <p>This preserves blockchain immutability while ensuring that correct data is available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fix Options -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Fix Options</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="fixTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="invalidate-tab" data-bs-toggle="tab" data-bs-target="#invalidate" type="button" role="tab">
+                            Invalidate Record
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="create-corrected-tab" data-bs-toggle="tab" data-bs-target="#create-corrected" type="button" role="tab">
+                            Create Corrected Record
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="fixTabsContent">
+                    <!-- Invalidate Record Tab -->
+                    <div class="tab-pane fade show active" id="invalidate" role="tabpanel" aria-labelledby="invalidate-tab">
+                        <h5>Invalidate Incorrect Record</h5>
+                        <p>Mark an existing record as invalid in the blockchain.</p>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="invalidate">
+                            
+                            <div class="mb-3">
+                                <label for="student_id" class="form-label">Select Student Record*</label>
+                                <select class="form-select" id="student_id" name="student_id" required>
+                                    <option value="">-- Select a student record --</option>
+                                    {% for record in active_records %}
+                                        <option value="{{ record.student_id }}">{{ record.student_id }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="reason" class="form-label">Reason for Invalidation*</label>
+                                <textarea class="form-control" id="reason" name="reason" rows="3" required
+                                          placeholder="Explain why this record needs to be marked as invalid"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle-fill me-2"></i>
+                                Invalidate Record
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Create Corrected Record Tab -->
+                    <div class="tab-pane fade" id="create-corrected" role="tabpanel" aria-labelledby="create-corrected-tab">
+                        <h5>Create Corrected Record</h5>
+                        <p>Create a new record with corrected data.</p>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="create_corrected">
+                            
+                            <div class="mb-3">
+                                <label for="student_id" class="form-label">Student ID (NIS)*</label>
+                                <input type="text" class="form-control" id="student_id" name="student_id" required
+                                       placeholder="Format: XX.XX.XX.XXX">
+                                <div class="form-text">Use the same ID as the record being corrected, or a new ID if appropriate</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="reason" class="form-label">Correction Reason*</label>
+                                <textarea class="form-control" id="reason" name="reason" rows="2" required
+                                          placeholder="Explain what is being corrected and why"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="nisn" class="form-label">NISN*</label>
+                                <input type="text" class="form-control" id="nisn" name="nisn" required
+                                       placeholder="9-digit number">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="nama" class="form-label">Nama Lengkap*</label>
+                                <input type="text" class="form-control" id="nama" name="nama" required
+                                       placeholder="Full name">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="kelahiran" class="form-label">Tempat, Tanggal Lahir*</label>
+                                <input type="text" class="form-control" id="kelahiran" name="kelahiran" required
+                                       placeholder="e.g., JAKARTA, 01 JANUARY 2000">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="kelamin" class="form-label">Jenis Kelamin*</label>
+                                <select class="form-select" id="kelamin" name="kelamin" required>
+                                    <option value="LAKI-LAKI">LAKI-LAKI</option>
+                                    <option value="PEREMPUAN">PEREMPUAN</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="alamat" class="form-label">Alamat Lengkap*</label>
+                                <textarea class="form-control" id="alamat" name="alamat" rows="2" required
+                                          placeholder="Complete address"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-plus-circle-fill me-2"></i>
+                                Create Corrected Record
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fix Process Explanation -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Blockchain Fix Process</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Best Practices for Fixes</h5>
+                        <ol>
+                            <li><strong>Two-Step Process:</strong> First invalidate the incorrect record, then create a new corrected one</li>
+                            <li><strong>Clear Documentation:</strong> Always provide detailed reasons for invalidations and corrections</li>
+                            <li><strong>Maintain ID Consistency:</strong> Use the same student ID for related records when appropriate</li>
+                            <li><strong>Mining:</strong> Ensure transactions are mined for changes to take effect</li>
+                        </ol>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Real-World Applications</h5>
+                        <p>In production blockchain systems, similar approaches are used:</p>
+                        <ul>
+                            <li><strong>Smart Contract Updates:</strong> New versions deployed, old ones marked deprecated</li>
+                            <li><strong>Supply Chain Corrections:</strong> Incorrect entries marked invalid, new entries created</li>
+                            <li><strong>Financial Adjustments:</strong> Additional transactions to correct errors</li>
+                            <li><strong>Identity Management:</strong> Updated records with references to previous versions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enable Bootstrap tabs
+    document.addEventListener('DOMContentLoaded', function() {
+        var triggerTabList = [].slice.call(document.querySelectorAll('#fixTabs button'))
+        triggerTabList.forEach(function(triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function(event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+    });
+</script>
+{% endblock %}

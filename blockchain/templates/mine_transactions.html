@@ -1,0 +1,170 @@
+<!-- templates/mine_transactions.html -->
+{% extends 'base.html' %}
+
+{% block title %}Mine Transactions - Blockchain Explorer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item active">Mine Transactions</li>
+            </ol>
+        </nav>
+        <h2>Mine Pending Transactions</h2>
+        <p>Process pending transactions and add them to a new block</p>
+    </div>
+</div>
+
+<!-- Mining Info -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Mining Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mining-status text-center p-4 border rounded">
+                            <i class="bi bi-hourglass-split text-warning" style="font-size: 3rem;"></i>
+                            <h3 class="mt-3">{{ pending_count }} Pending Transactions</h3>
+                            <p class="text-muted">Waiting to be mined into a block</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>What is Mining?</h5>
+                        <p>In a blockchain system, mining is the process of:</p>
+                        <ul>
+                            <li>Collecting pending transactions</li>
+                            <li>Creating a new block with these transactions</li>
+                            <li>Finding a valid "proof of work" by solving a cryptographic puzzle</li>
+                            <li>Adding the block to the blockchain</li>
+                        </ul>
+                        <p>This process secures the blockchain and confirms transactions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mining Action -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">Mine a New Block</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_count > 0 %}
+                    <div class="text-center">
+                        <h5>Ready to mine {{ pending_count }} pending transactions</h5>
+                        <p>Mining will create a new block in the blockchain and confirm all pending transactions.</p>
+                        
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="bi bi-cpu me-2"></i>
+                                Start Mining
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <h5><i class="bi bi-info-circle-fill me-2"></i> No Pending Transactions</h5>
+                        <p>There are currently no pending transactions to mine.</p>
+                        <a href="{% url 'blockchain_explorer' %}" class="btn btn-primary mt-2">Return to Explorer</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mining Explanation -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">How Mining Works in a Real Blockchain</h5>
+            </div>
+            <div class="card-body">
+                <div class="mining-visualization mb-4">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded mb-2">
+                                <i class="bi bi-collection text-primary" style="font-size: 2rem;"></i>
+                                <h6 class="mt-2">Collect Transactions</h6>
+                            </div>
+                            <div class="arrow-down">
+                                <i class="bi bi-arrow-down"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded mb-2">
+                                <i class="bi bi-box text-primary" style="font-size: 2rem;"></i>
+                                <h6 class="mt-2">Build Block</h6>
+                            </div>
+                            <div class="arrow-down">
+                                <i class="bi bi-arrow-down"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded mb-2">
+                                <i class="bi bi-cpu text-primary" style="font-size: 2rem;"></i>
+                                <h6 class="mt-2">Solve PoW Puzzle</h6>
+                            </div>
+                            <div class="arrow-down">
+                                <i class="bi bi-arrow-down"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded mb-2">
+                                <i class="bi bi-link text-primary" style="font-size: 2rem;"></i>
+                                <h6 class="mt-2">Add to Chain</h6>
+                            </div>
+                            <div class="arrow-down">
+                                <i class="bi bi-arrow-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Proof of Work (PoW)</h5>
+                        <p>In our simulation, miners must find a hash that starts with a specific number of zeros (difficulty level). This requires:</p>
+                        <ol>
+                            <li>Calculating the block hash using all block data</li>
+                            <li>Changing the "nonce" value if the hash doesn't match the difficulty</li>
+                            <li>Repeating until a valid hash is found</li>
+                        </ol>
+                        <p>This computational work protects the blockchain from tampering and ensures consensus.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Real-World Mining</h5>
+                        <p>In real blockchains like Bitcoin or Ethereum:</p>
+                        <ul>
+                            <li><strong>Multiple Miners:</strong> Thousands of miners compete to solve the puzzle</li>
+                            <li><strong>Economic Incentives:</strong> Miners receive rewards for successful blocks</li>
+                            <li><strong>Adjustable Difficulty:</strong> Difficulty changes to maintain consistent block times</li>
+                            <li><strong>Massive Computation:</strong> Requires specialized hardware and significant energy</li>
+                        </ul>
+                        <p>Our simulation simplifies this process while maintaining the core concepts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .arrow-down {
+        margin: 10px 0;
+        font-size: 1.5rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}

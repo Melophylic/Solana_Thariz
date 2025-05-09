@@ -102,7 +102,7 @@ def student_blockchain_view(request):
         'student_records': active_records
     }
     
-    return render(request, 'student_blockchain_view.html', context)
+    return render(request, 'realistic/student_blockchain_view.html', context)
 
 @login_required(login_url='login')
 @user_passes_test(is_admin)
@@ -179,7 +179,7 @@ def add_student_blockchain(request):
         
         return redirect('student_blockchain_view')
     
-    return render(request, 'add_student_blockchain.html', {
+    return render(request, 'realistic/add_student_blockchain.html', {
         'contract': contract,
         'user_address': user_address
     })

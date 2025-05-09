@@ -1,0 +1,130 @@
+<!-- templates/student_record_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Student Record: {{ student_id }} - Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_blockchain_view' %}">Student Records</a></li>
+                <li class="breadcrumb-item active">{{ student_id }}</li>
+            </ol>
+        </nav>
+        <h2>Student Record: {{ student_id }}</h2>
+        <p>View the full history of this student record on the blockchain</p>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'student_blockchain_view' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Students
+                    </a>
+                    <div>
+                        <a href="{% url 'update_student_blockchain' student_id %}" class="btn btn-warning">
+                            <i class="bi bi-pencil-fill me-2"></i>
+                            Update
+                        </a>
+                        <a href="{% url 'invalidate_student_blockchain' student_id %}" class="btn btn-danger">
+                            <i class="bi bi-x-circle-fill me-2"></i>
+                            Invalidate
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student record history -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Record History</h5>
+            </div>
+            <div class="card-body">
+                {% if record_history %}
+                    <div class="timeline">
+                        {% for record in record_history %}
+                            <div class="card mb-3 {% if record.status == 'active' %}border-success{% elif record.status == 'invalid' %}border-danger{% else %}border-secondary{% endif %}">
+                                <div class="card-header {% if record.status == 'active' %}bg-success{% elif record.status == 'invalid' %}bg-danger{% else %}bg-secondary{% endif %} text-white d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">
+                                            Record #{{ record.record_id }}
+                                            {% if record.status == 'active' %}
+                                                <span class="badge bg-light text-success ms-2">Active</span>
+                                            {% elif record.status == 'superseded' %}
+                                                <span class="badge bg-light text-secondary ms-2">Superseded</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-danger ms-2">Invalid</span>
+                                            {% endif %}
+                                        </h5>
+                                    </div>
+                                    <div>
+                                        <small>{{ record.created_at|date:"d M Y H:i:s" }}</small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h6>Encrypted Data</h6>
+                                            <div class="bg-light p-3 rounded mb-3">
+                                                <code class="text-break">{{ record.encrypted_data|slice:":150" }}...</code>
+                                            </div>
+                                            
+                                            <div class="alert alert-info">
+                                                <p><i class="bi bi-lock-fill me-2"></i> This data is encrypted and can only be viewed with the appropriate decryption key.</p>
+                                            </div>
+                                            
+                                            <!-- In a real application, we would decrypt and show the data here if we have the key -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <p>No history found for student ID {{ student_id }}.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blockchain explanation -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">How Blockchain Records Work</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>Immutable History</h5>
+                        <p>In a blockchain system:</p>
+                        <ul>
+                            <li><strong>Nothing is ever deleted</strong> - all versions of a record remain on the chain</li>
+                            <li><strong>Updates create new records</strong> - older versions are marked as "superseded"</li>
+                            <li><strong>Invalid records remain</strong> - they are marked as "invalid" but stay on the chain</li>
+                            <li><strong>Full audit trail</strong> - every change is permanently recorded and timestamped</li>
+                        </ul>
+                        <p>This approach ensures data integrity and provides a complete history of all changes made to a student's record over time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

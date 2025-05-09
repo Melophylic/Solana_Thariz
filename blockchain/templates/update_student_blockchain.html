@@ -1,0 +1,233 @@
+<!-- templates/update_student_blockchain.html -->
+{% extends 'base.html' %}
+
+{% block title %}Update Student Record - Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_blockchain_view' %}">Student Records</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_record_detail' student_id %}">{{ student_id }}</a></li>
+                <li class="breadcrumb-item active">Update</li>
+            </ol>
+        </nav>
+        <h2>Update Student Record: {{ student_id }}</h2>
+        <p>Update a student record using the blockchain smart contract</p>
+    </div>
+</div>
+
+<!-- Contract info -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-file-earmark-code fs-2 text-primary"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Using Smart Contract: {{ contract.name }}</h5>
+                        <p class="mb-0 text-muted">
+                            Contract Address: <code>{{ contract.contract_address|slice:":10" }}...</code> | 
+                            Version: {{ contract.version }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update information -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Important: Blockchain Updates
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>In a blockchain system, updates work differently than in traditional databases:</p>
+                <ul>
+                    <li><strong>Records are not modified</strong> - instead, a new record is created</li>
+                    <li><strong>Old record is marked as "superseded"</strong> - but remains on the blockchain</li>
+                    <li><strong>New record becomes the active version</strong> - complete history is preserved</li>
+                </ul>
+                <p>This approach ensures data integrity and maintains a complete audit trail of all changes.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update student form -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Update Student Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <label for="nis" class="col-md-3 col-form-label">NIS (Student ID)*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="nis" name="nis" value="{{ student_id }}" readonly>
+                            <div class="form-text">Student ID cannot be changed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="nisn" class="col-md-3 col-form-label">NISN*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="nisn" name="nisn" value="{{ current_data.nisn }}" required
+                                   placeholder="9-digit number">
+                            <div class="form-text">9-digit national student ID number</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="nama" class="col-md-3 col-form-label">Nama Lengkap*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="nama" name="nama" value="{{ current_data.nama }}" required
+                                   placeholder="Full name">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="kelahiran" class="col-md-3 col-form-label">Tempat, Tanggal Lahir*</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="kelahiran" name="kelahiran" value="{{ current_data.kelahiran }}" required
+                                   placeholder="e.g., JAKARTA, 01 JANUARY 2000">
+                            <div class="form-text">Format: KOTA, DD BULAN YYYY</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="kelamin" class="col-md-3 col-form-label">Jenis Kelamin*</label>
+                        <div class="col-md-9">
+                            <select class="form-select" id="kelamin" name="kelamin" required>
+                                <option value="LAKI-LAKI" {% if current_data.kelamin == 'LAKI-LAKI' %}selected{% endif %}>LAKI-LAKI</option>
+                                <option value="PEREMPUAN" {% if current_data.kelamin == 'PEREMPUAN' %}selected{% endif %}>PEREMPUAN</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="alamat" class="col-md-3 col-form-label">Alamat Lengkap*</label>
+                        <div class="col-md-9">
+                            <textarea class="form-control" id="alamat" name="alamat" rows="3" required
+                                      placeholder="Complete address">{{ current_data.alamat }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-9 offset-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="bi bi-wallet2 text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0">Transaction will be submitted from: <code>{{ user_address|slice:":10" }}...</code></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-cloud-upload-fill me-2"></i>
+                                Update on Blockchain
+                            </button>
+                            <a href="{% url 'student_record_detail' student_id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction flow -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Update Transaction Flow</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="transaction-flow">
+                            <div class="d-flex justify-content-between">
+                                <div class="flow-step text-center">
+                                    <div class="icon-circle bg-primary text-white mb-2">
+                                        <i class="bi bi-1-circle"></i>
+                                    </div>
+                                    <h6>Submit Form</h6>
+                                    <p class="small">Data is validated</p>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-step text-center">
+                                    <div class="icon-circle bg-primary text-white mb-2">
+                                        <i class="bi bi-2-circle"></i>
+                                    </div>
+                                    <h6>Create Transaction</h6>
+                                    <p class="small">Call update_student function</p>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-step text-center">
+                                    <div class="icon-circle bg-primary text-white mb-2">
+                                        <i class="bi bi-3-circle"></i>
+                                    </div>
+                                    <h6>Smart Contract Execution</h6>
+                                    <p class="small">Old record marked superseded</p>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-step text-center">
+                                    <div class="icon-circle bg-primary text-white mb-2">
+                                        <i class="bi bi-4-circle"></i>
+                                    </div>
+                                    <h6>Mine Block</h6>
+                                    <p class="small">Transaction is confirmed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    
+    .flow-step {
+        flex: 1;
+        max-width: 150px;
+    }
+    
+    .flow-arrow {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        padding: 0 10px;
+    }
+</style>
+{% endblock %}

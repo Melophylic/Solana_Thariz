@@ -5,6 +5,7 @@ from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from cryptography.fernet import Fernet
+from django.db import transaction
 import base64
 
 class Block(models.Model):
@@ -73,6 +74,7 @@ class StudentBiodata(models.Model):
         return hashlib.sha256(value.encode()).hexdigest()
     
     @classmethod
+    @transaction.atomic  # Important! This ensures all database operations happen together
     def create_with_blockchain(cls, student_id, data, user):
         """Create a new student record with blockchain integration"""
         # Get user's encryption key
@@ -84,9 +86,9 @@ class StudentBiodata(models.Model):
         # Encrypt the data
         encrypted_data = cls.encrypt_data(data, key_obj)
         
-        # Get the previous block or create the genesis block
+        # Get the previous block using SELECT FOR UPDATE to prevent race conditions
         try:
-            previous_block = Block.objects.latest('id')
+            previous_block = Block.objects.select_for_update().latest('id')
             previous_hash = previous_block.hash
             index = previous_block.id + 1
         except Block.DoesNotExist:
@@ -98,8 +100,8 @@ class StudentBiodata(models.Model):
         nonce = 0
         hash_value = cls.calculate_hash(index, previous_hash, timestamp, encrypted_data, nonce)
         
-        # Simple PoW simulation - not actual mining
-        while not hash_value.startswith('00'):  # Simple difficulty
+        # Simple PoW simulation
+        while not hash_value.startswith('00'):
             nonce += 1
             hash_value = cls.calculate_hash(index, previous_hash, timestamp, encrypted_data, nonce)
         
@@ -119,7 +121,6 @@ class StudentBiodata(models.Model):
         )
         
         return student
-
     def update_data(self, new_data, user):
         """Update the student data and create a new block"""
         try:

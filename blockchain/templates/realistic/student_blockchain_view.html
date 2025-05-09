@@ -1,0 +1,133 @@
+<!-- templates/student_blockchain_view.html -->
+{% extends 'base.html' %}
+
+{% block title %}Student Records - Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blockchain_explorer' %}">Explorer</a></li>
+                <li class="breadcrumb-item active">Student Records</li>
+            </ol>
+        </nav>
+        <h2>Student Records on Blockchain</h2>
+        <p>View all active student records stored in the blockchain</p>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'add_student_blockchain' %}" class="btn btn-success">
+                        <i class="bi bi-person-plus-fill me-2"></i>
+                        Add New Student
+                    </a>
+                    <a href="{% url 'create_fix_transaction' %}" class="btn btn-warning">
+                        <i class="bi bi-tools me-2"></i>
+                        Fix Record
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student records -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Active Student Records</h5>
+            </div>
+            <div class="card-body">
+                {% if student_records %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>NIS</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in student_records %}
+                                    <tr>
+                                        <td>{{ record.student_id }}</td>
+                                        <td>
+                                            {% if record.status == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% elif record.status == 'superseded' %}
+                                                <span class="badge bg-secondary">Superseded</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Invalid</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.created_at|date:"d M Y H:i:s" }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{% url 'student_record_detail' record.student_id %}" class="btn btn-sm btn-info">
+                                                    <i class="bi bi-eye-fill"></i> View
+                                                </a>
+                                                <a href="{% url 'update_student_blockchain' record.student_id %}" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-pencil-fill"></i> Update
+                                                </a>
+                                                <a href="{% url 'invalidate_student_blockchain' record.student_id %}" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-x-circle-fill"></i> Invalidate
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>No active student records found. <a href="{% url 'add_student_blockchain' %}">Add your first student</a>.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How it works -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">How Blockchain Student Records Work</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Data Storage</h5>
+                        <ul>
+                            <li><strong>Smart Contract:</strong> All student data is managed by a smart contract</li>
+                            <li><strong>Encryption:</strong> Data is encrypted before being stored</li>
+                            <li><strong>Immutability:</strong> Once added to the blockchain, records cannot be deleted</li>
+                            <li><strong>Versioning:</strong> Updates create new versions rather than modifying existing data</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Operations</h5>
+                        <ul>
+                            <li><strong>Adding:</strong> Creates a transaction that calls the smart contract's add_student function</li>
+                            <li><strong>Updating:</strong> Marks previous record as superseded and creates a new active record</li>
+                            <li><strong>Invalidating:</strong> Marks a record as invalid without deleting it from the blockchain</li>
+                            <li><strong>Mining:</strong> All transactions must be mined into a block to be confirmed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

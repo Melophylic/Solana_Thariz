@@ -1,0 +1,145 @@
+<!-- templates/setup_blockchain.html -->
+{% extends 'base.html' %}
+
+{% block title %}Setup Blockchain{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Blockchain Setup</h2>
+        <p>Initialize the blockchain system with necessary components</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Blockchain Initialization</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>System Status</h5>
+                        <div class="list-group mb-4">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Genesis Block
+                                {% if has_genesis %}
+                                    <span class="badge bg-success rounded-pill">Created</span>
+                                {% else %}
+                                    <span class="badge bg-danger rounded-pill">Not Created</span>
+                                {% endif %}
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Validator Node
+                                {% if has_node %}
+                                    <span class="badge bg-success rounded-pill">Created</span>
+                                {% else %}
+                                    <span class="badge bg-danger rounded-pill">Not Created</span>
+                                {% endif %}
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Smart Contract
+                                {% if has_contract %}
+                                    <span class="badge bg-success rounded-pill">Deployed</span>
+                                {% else %}
+                                    <span class="badge bg-danger rounded-pill">Not Deployed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if is_setup %}
+                            <div class="alert alert-success">
+                                <h5><i class="bi bi-check-circle-fill me-2"></i> Blockchain Ready</h5>
+                                <p>Your blockchain system is fully initialized and ready to use.</p>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <h5><i class="bi bi-exclamation-triangle-fill me-2"></i> Setup Needed</h5>
+                                <p>One or more components need to be initialized.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>What Will Be Created</h5>
+                        <ol>
+                            <li>
+                                <strong>Genesis Block</strong>
+                                <p>The first block in the blockchain with no transactions</p>
+                            </li>
+                            <li>
+                                <strong>Validator Node</strong>
+                                <p>A simulated blockchain node linked to your account</p>
+                            </li>
+                            <li>
+                                <strong>Smart Contract</strong>
+                                <p>The StudentManagement contract for storing student records</p>
+                            </li>
+                        </ol>
+                        
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            <div class="d-grid gap-2">
+                                {% if is_setup %}
+                                    <a href="{% url 'blockchain_explorer' %}" class="btn btn-primary btn-lg">
+                                        Go to Blockchain Explorer
+                                    </a>
+                                {% else %}
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-box-fill me-2"></i>
+                                        Initialize Blockchain
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">About This Blockchain Implementation</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Key Components</h5>
+                        <ul>
+                            <li><strong>Blocks:</strong> Contains transactions and links to previous blocks</li>
+                            <li><strong>Proof of Work:</strong> Mining requires finding a hash with leading zeros</li>
+                            <li><strong>Smart Contract:</strong> Code that manages student record operations</li>
+                            <li><strong>Transactions:</strong> Operations that modify the blockchain state</li>
+                            <li><strong>Encryption:</strong> All student data is encrypted before storage</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Real-World Parallels</h5>
+                        <ul>
+                            <li><strong>Student Records = Data Immutability:</strong> Like medical records on blockchain</li>
+                            <li><strong>Encryption = Privacy:</strong> Similar to encrypted messaging on blockchain</li>
+                            <li><strong>Versioning = Auditing:</strong> Like supply chain tracking systems</li>
+                            <li><strong>Mining = Consensus:</strong> Similar to Bitcoin's validation process</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h5><i class="bi bi-lightbulb-fill me-2"></i> Educational Simulation</h5>
+                    <p>This is a simplified blockchain implementation for educational purposes. While it demonstrates the core concepts, a production blockchain would have additional features like:</p>
+                    <ul>
+                        <li>Distributed network of nodes instead of a centralized system</li>
+                        <li>Consensus mechanisms for validating blocks across nodes</li>
+                        <li>Peer-to-peer networking for propagating transactions and blocks</li>
+                        <li>Economic incentives for miners/validators</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
