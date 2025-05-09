@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'main',
     'solanabase',
     'blockchain',
-    'livereload'
+    'livereload',
 ]
 
 MIDDLEWARE = [

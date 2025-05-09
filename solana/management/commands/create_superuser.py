@@ -1,7 +1,6 @@
 from django.contrib.auth.management.commands import createsuperuser
 from django.core.management import CommandError
 
-
 class Command(createsuperuser.Command):
     help = 'Crate a superuser, and allow password to be provided'
 
