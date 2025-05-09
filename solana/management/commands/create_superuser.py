@@ -1,18 +1,28 @@
-# yourapp/management/commands/create_superuser.py
-from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-import os
+from django.contrib.auth.management.commands import createsuperuser
+from django.core.management import CommandError
 
-class Command(BaseCommand):
-    help = 'Creates a superuser automatically'
+
+class Command(createsuperuser.Command):
+    help = 'Crate a superuser, and allow password to be provided'
+
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument(
+            '--password', dest='password', default=None,
+            help='Specifies the password for the superuser.',
+        )
 
     def handle(self, *args, **options):
-        username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
-        email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
-        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin')
+        password = options.get('password')
+        username = options.get('username')
+        database = options.get('database')
 
-        if not User.objects.filter(username=username).exists():
-            User.objects.create_superuser(username, email, password)
-            self.stdout.write(f'Superuser "{username}" created successfully')
-        else:
-            self.stdout.write(f'Superuser "{username}" already exists')
+        if password and not username:
+            raise CommandError("--username is required if specifying --password")
+
+        super(Command, self).handle(*args, **options)
+
+        if password:
+            user = self.UserModel._default_manager.db_manager(database).get(username=username)
+            user.set_password(password)
+            user.save()
