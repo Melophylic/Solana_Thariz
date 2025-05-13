@@ -111,7 +111,7 @@ class StudentContract:
             
             # In a real smart contract, this would emit an event
             return {
-                'success': True, 
+                'success': True,
                 'student_id': student_id,
                 'record_id': record.id
             }

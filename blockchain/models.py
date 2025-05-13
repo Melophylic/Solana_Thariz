@@ -28,6 +28,8 @@ class EncryptionKey(models.Model):
     def generate_key(cls, user):
         """Generate a new encryption key for a user"""
         key = Fernet.generate_key()
+        print(f"Generated key type: {type(key)}, value: {key[:10]}...")
+
         key_obj, created = cls.objects.get_or_create(
             user=user,
             defaults={'key': key}
@@ -35,7 +37,22 @@ class EncryptionKey(models.Model):
         if not created:
             key_obj.key = key
             key_obj.save()
+
+        retrieved = cls.objects.get(user=user)
+        print(f"Retrieved key type: {type(retrieved.key)}, value: {retrieved.key[:10]}...")
+        
         return key_obj
+    
+    def get_fernet_key(self):
+        """Ensure the key is returned in the correct format for Fernet"""
+        # Convert from database representation to bytes if needed
+        if not isinstance(self.key, bytes):
+            # If it's a memoryview (common with PostgreSQL)
+            if hasattr(self.key, 'tobytes'):
+                return self.key.tobytes()
+            # Try direct bytes conversion
+            return bytes(self.key)
+        return self.key
 
 class StudentBiodata(models.Model):
     """Model to store encrypted student biodata"""
